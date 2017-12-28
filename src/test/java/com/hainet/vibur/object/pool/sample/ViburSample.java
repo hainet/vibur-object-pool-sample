@@ -13,6 +13,8 @@ public class ViburSample {
 
     @Test
     public void test() {
+        // Pool生成時にUuidFactory#create()を経由して値を生成
+        // ConcurrentPool<>(...) -> addInitialObjects() -> ConcurrentLinkedDequeCollection#offerLast()
         final PoolService<UUID> pool = new ConcurrentPool<>(
                 new ConcurrentLinkedDequeCollection<>(),
                 new UuidFactory(),
@@ -30,7 +32,9 @@ public class ViburSample {
         // UuidFactory#create()を経由して値を取得
         pool.take();
 
-        // restoreした値を取得
+        // restoreはキューではなくスタックとして処理される
+        // restore() -> ConcurrentLinkedDequeCollection#offerFirst()
+        pool.restore(UUID.randomUUID());
         pool.restore(UUID.randomUUID());
         pool.take();
 
